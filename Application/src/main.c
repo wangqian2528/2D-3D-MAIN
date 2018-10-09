@@ -480,33 +480,51 @@ void Main_Initial_Data(void);
 
 void Main_Initial_IO(void)
 {
+    //关中断 --执行完当前中断
     __disable_irq();
+    //时钟更新、初始化外设时钟、使能低功耗时钟、使能低功耗定时器&中断、使能比较器
     System_Initial_IO();
-    // __enable_irq(); //test
-    // while(1);
+    //初始化电源 3V3 5V
     Power_Initial_IO();
+    //LED1初始化
     IndicateLED_Initial_IO();
+    //揉捏电机初始化
     KneadMotor_Initial_IO();
-   HAND_Initial_IO();
-   Valve_Initial_IO();
+    //手控器初始化 uart1串口
+    HAND_Initial_IO();
+    //气阀
+    Valve_Initial_IO();
+    //3D电机
     Axis_Initial_IO();
+    //滑动电机
     SlideMotor_Initial_IO();
-   LegMotor_Initial_IO();
-   BackMotor_Initial_IO();
+    //小腿电机
+    LegMotor_Initial_IO();
+    //背部电机
+    BackMotor_Initial_IO();
+    //行走电机
     WalkMotor_Initial_IO();
-   Input_Initial_IO();
-   KnockMotor_Initial_IO();
+    //外部中断 读取行走电机和背部电机
+    Input_Initial_IO();
+    //敲打电机
+    KnockMotor_Initial_IO();
+    //MP3
     MP3Control1_Initial_IO();
+    //腰部加热
     WaistHeat_Initial_IO();
-   LED_RGB_Initial_IO();
+    //三色LED
+    LED_RGB_Initial_IO();
+    //小腿串口通讯 uart0
     UartLeg_Initial_IO();
+    //蓝牙串口通讯 uart2
     BlueToothUart_Initial_IO();
+    //DMA初始化
     DMA_Ctrl_Init();
     ADC_Data_Init();
 
-  //  LEUART0_Initial_IO();// 接收3D检测板485信号 ,去掉3D检测借口
-   //  DMA_Ctrl_Init();
-  SignalBoard_Initial_IO();//读取电机行程开关
+    //LEUART0_Initial_IO();// 接收3D检测板485信号 ,去掉3D检测借口
+    //DMA_Ctrl_Init();
+    SignalBoard_Initial_IO();//读取电机行程开关
     __enable_irq();
   
 }
@@ -8664,7 +8682,7 @@ bool isZeroPosition(void)
 {
 
  
-     wgh_BackPosition = BackMotor_Get_Position();
+    wgh_BackPosition = BackMotor_Get_Position();
     wgh_LegPosition = LegMotor_Get_Position(); 
     
     resultgh = (wgh_BackPosition < (MASSAGE_BACK_OPTIMAL1_POSITION + POSITION_DISPLAY_OFFSET));
@@ -10445,20 +10463,20 @@ void Main_Initial_Data(void)
     GlobalFlags9.nByte = 0;
     GlobalFlags10.nByte = 0;
         
-    unsigned int pw_Information[10];
-    memset(pw_Information,0,sizeof(pw_Information));
-    PBYTE pInformation = (PBYTE)pw_Information;
-    // 
+    unsigned int pw_Information[10];//定义了一个数组
+    memset(pw_Information,0,sizeof(pw_Information));//使用前先初始化
+    PBYTE pInformation = (PBYTE)pw_Information;//重新定义了一个指针指向数组 
+    //读eeprom 主版本号和副版本号都不对 初始化数据
     if((SOFT_MAIN_VER != ReadEEByte(USER_DATA_BASE + SOFT_MAIN_VER_ADDRESS)) || (SOFT_SECONDARY_VER != ReadEEByte(USER_DATA_BASE + SOFT_SECONDARY_VER_ADDRESS))) 
     {  //首次使用需要初始化数据
-        *(pInformation + SOFT_MAIN_VER_ADDRESS) = SOFT_MAIN_VER;
-        *(pInformation + SOFT_SECONDARY_VER_ADDRESS) = SOFT_SECONDARY_VER;
-        *(pInformation + SETTLE_ADDRESS) = MEMORY_DEFAULT_SETTLE;          //气囊力度
-        *(pInformation + AIRBAG_STRETCH_ADDRESS) = MEMORY_DEFAULT_AIR;               //
-        *(pInformation + SLIDE_MOTOR_ENABLE_ADDRESS) = SLIDE_DEFAULT_ENABLE; 
-        *(pInformation + DEFAULT_TIME_ADDRESS) = RUN_TIME_20/60; 
-        *(pInformation + BLUETOOTH_STATUS_ADDRESS) = BLUETOOTH_STATUS_DEFAULT; 
-        *(pInformation + REST_SLEEP_MODE_ADDRESS) = REST_SLEEP_DEFAULT;//20150702
+        *(pInformation + SOFT_MAIN_VER_ADDRESS) = SOFT_MAIN_VER;               //主版本号
+        *(pInformation + SOFT_SECONDARY_VER_ADDRESS) = SOFT_SECONDARY_VER;     //副版本号
+        *(pInformation + SETTLE_ADDRESS) = MEMORY_DEFAULT_SETTLE;              //默认关机复位
+        *(pInformation + AIRBAG_STRETCH_ADDRESS) = MEMORY_DEFAULT_AIR;         //默认气囊力度
+        *(pInformation + SLIDE_MOTOR_ENABLE_ADDRESS) = SLIDE_DEFAULT_ENABLE;   //默认滑动状态
+        *(pInformation + DEFAULT_TIME_ADDRESS) = RUN_TIME_20/60;               //默认运行时间
+        *(pInformation + BLUETOOTH_STATUS_ADDRESS) = BLUETOOTH_STATUS_DEFAULT; //默认蓝牙开关
+        *(pInformation + REST_SLEEP_MODE_ADDRESS) = REST_SLEEP_DEFAULT;        
         MEM_Write_Memory(pw_Information,8*2);
         
        //   xmodem__Erase_Block(CLOUD_PROGAME1_START_ADDRESS,CLOUD_PROGAME4_END_ADDRESS);
@@ -10469,18 +10487,17 @@ void Main_Initial_Data(void)
     st_Stretch.mode = STRETCH_MODE_SWITCH;
     st_Stretch.PresetTime = 200;
     st_Stretch.active = false;
-      st_GrowthStretch.active = false;
-	  
-	  
+    st_GrowthStretch.active = false;
+    
+    //气囊
     st_AirBagArmSholderBackWaist.pAirBagArray = AirBagModeArmSholderBackWaist;
     st_AirBagArmSholderBackWaist.nTotalSteps = sizeof(AirBagModeArmSholderBackWaist)/sizeof(struct AirBagStruct);
     st_AirBagArmSholderBackWaist.locate = AIRBAG_LOCATE_ARM_SHOLDER_WAIST;
     
-	//--------------------------------------------------------------------------------//add  
-	st_AirBagModeLegFootSeat_Growth.pAirBagArray = AirBagModeLegFootSeat_Growth;
+    st_AirBagModeLegFootSeat_Growth.pAirBagArray = AirBagModeLegFootSeat_Growth;
     st_AirBagModeLegFootSeat_Growth.nTotalSteps = sizeof(AirBagModeLegFootSeat_Growth) / sizeof(struct AirBagStruct);
     st_AirBagModeLegFootSeat_Growth.locate = AIRBAG_LOCATE_LEG_FOOT_SEAT;  
-//----------------------------------------------------------------------------------------
+
     st_AirBagModeLegFootSeat.pAirBagArray = AirBagModeLegFootSeat;
     st_AirBagModeLegFootSeat.nTotalSteps = sizeof(AirBagModeLegFootSeat)/sizeof(struct AirBagStruct);
     st_AirBagModeLegFootSeat.locate = AIRBAG_LOCATE_LEG_FOOT_SEAT;
@@ -10505,25 +10522,24 @@ void Main_Initial_Data(void)
     st_AirBagArm.nTotalSteps = sizeof(AirBagModeArm)/sizeof(struct AirBagStruct);
     st_AirBagArm.locate = AIRBAG_LOCATE_ARM;
     
-	
-	 //AirBagModeLegFoot_GrowthA 
-  GrowthStepMaxA =85;// sizeof(AirBagModeLegFoot_GrowthA) / sizeof(struct AirBagStruct);  
- GrowthStepMaxB =82;// sizeof(AirBagModeLegFoot_GrowthB) / sizeof(struct AirBagStruct);
-	//GrowthStepMaxB=sizeof(AirBagModeLegFootSeat_Growth) / sizeof(struct AirBagStruct);
-	
+    //AirBagModeLegFoot_GrowthA 
+    GrowthStepMaxA =85;// sizeof(AirBagModeLegFoot_GrowthA) / sizeof(struct AirBagStruct);  
+    GrowthStepMaxB =82;// sizeof(AirBagModeLegFoot_GrowthB) / sizeof(struct AirBagStruct);
+    //GrowthStepMaxB=sizeof(AirBagModeLegFootSeat_Growth) / sizeof(struct AirBagStruct);
+    
     //bKneckCheckSwitchLast = Input_GetVout();
     
     //Back Variables
-    nBackMainRunMode = BACK_MAIN_MODE_IDLE ;
+    nBackMainRunMode = BACK_MAIN_MODE_IDLE ;//背背运行模式 空闲
     nKeyBackLocate = LOCATE_NONE;   //全程，局部，定点定位标志
-    nKeyKneadWidth = KNEAD_WIDTH_UNKNOWN ;
-    nKeyKneadKnockSpeed = SPEED_0 ;
+    nKeyKneadWidth = KNEAD_WIDTH_UNKNOWN ;//揉捏宽度
+    nKeyKneadKnockSpeed = SPEED_0 ;//整机揉捏敲打速度
     //Walk Motor Variables
-    bWalkMotorInProcess = FALSE ;
-    nWalkMotorControlParam1 = WALK_LOCATE_PARK ;
+    bWalkMotorInProcess = FALSE ;//行走电机程序执行标志位
+    nWalkMotorControlParam1 = WALK_LOCATE_PARK ;//行走电机定位方式
     nWalkMotorControlParam2 = 0 ;
     bUpdateLocate = TRUE ;     //行走电机坐标更新标志，置位时更新一次坐标
-    nShoulderPosition = DEFAULT_SHOULDER_POSITION ;
+    nShoulderPosition = DEFAULT_SHOULDER_POSITION ;//肩部定位
     BodyDataRefresh() ;
     nKneadMotorControlParam1 = KNEAD_STOP ;
     nFinalKneadMotorState = STATE_IDLE ;
@@ -18471,7 +18487,7 @@ void Main_Update(void)
 extern unsigned short __checksum;
 void main(void)
 {
-    SCB->VTOR = (uint32_t)(8 * 1024);  
+    SCB->VTOR = (uint32_t)(8 * 1024);  //中断向量偏移 
     if(__checksum == 0) __checksum = 1;
     Main_Initial_IO(); //硬件初始化
 	  
