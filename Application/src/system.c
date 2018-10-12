@@ -69,7 +69,6 @@ void System_Initial_IO(void)
     CHIP_Init();
     CMU_HFRCOBandSet(cmuHFRCOBand_28MHz);  /** main system clock - internal RC 28MHz*/
     SystemCoreClockUpdate();
-    /*使能外设时钟*/
     CMU_ClockEnable(cmuClock_HFPER,true);  /** High frequency peripheral clock */
     CMU_ClockEnable(cmuClock_CORELE, true);/* Enable CORELE clock */
     CMU_ClockEnable(cmuClock_GPIO,true);   /** General purpose input/output clock. */
@@ -102,8 +101,7 @@ void System_Initial_IO(void)
     CMU_IntEnable(CMU_IEN_LFXORDY);
     NVIC_EnableIRQ(CMU_IRQn);
     CMU_OscillatorEnable(cmuOsc_LFXO,1,0);
-
-	//比较器初始化
+    
     VCMP_Init_TypeDef vcmp =
     {
         true,                               /* Half bias current */
@@ -126,7 +124,7 @@ void System_Initial_IO(void)
     VCMP_IntEnable(VCMP_IEN_EDGE | VCMP_IEN_WARMUP);
     
     /* Enable VCMP and wait for warm-up complete */
-    VCMP_Enable();  //使能比较器
+    VCMP_Enable();  
 }
 //1ms interupt
 
